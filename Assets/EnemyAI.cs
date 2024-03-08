@@ -114,8 +114,14 @@ public class EnemyAI : MonoBehaviour
 		}
 	}
 
-	void Patrol()
+	void Patrol() // Enemy goes through 26 control points in order
 	{
+		if (patrolPointIndex >= patrolPoints.Length) patrolPointIndex = 0;
+
+		if (SetDestination(patrolPoints[patrolPointIndex].position, 1f))
+		{
+			patrolPointIndex = (patrolPointIndex + 1) % patrolPoints.Length;
+		}
 	}
 
 	void Chase()
@@ -132,6 +138,16 @@ public class EnemyAI : MonoBehaviour
 
 	void Retreat()
 	{
+	}
+
+	bool SetDestination(Vector3 destination, float threshold = 0.5f) // Checking for valid destination
+	{
+		if (Vector3.Distance(transform.position, destination) > threshold)
+		{
+			agent.SetDestination(destination);
+			return false;
+		}
+		return true;
 	}
 
 	void ChangeState(AIState newState) // Changing states and don't make enemy move in attacking or searching states
