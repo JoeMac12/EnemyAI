@@ -36,6 +36,13 @@ public class EnemyAI : MonoBehaviour
 
 		UpdateStateText();
 		StateManager();
+
+		if (currentState != AIState.Attacking && currentState != AIState.Searching)
+		{
+			EnemySight();
+		}
+
+		HandleTransitions();
 	}
 
 	private void UpdateStateText() // For updating the UI text of state changes
@@ -83,6 +90,30 @@ public class EnemyAI : MonoBehaviour
 		}
 	}
 
+	private void EnemySight() // Checking enemy sight
+	{
+		if (distanceToPlayer <= sightRange) // Player was seen and begin chasing
+		{
+			ChangeState(AIState.Chasing);
+		}
+		else if (currentState == AIState.Chasing && distanceToPlayer > loseSightRange) // Out of chasing range
+		{
+			ChangeState(AIState.Searching);
+		}
+	}
+
+	private void HandleTransitions() // Handling transitions between some states
+	{
+		if (currentState == AIState.Chasing && distanceToPlayer <= attackRange) // In attack range
+		{
+			ChangeState(AIState.Attacking);
+		}
+		else if (currentState == AIState.Attacking && distanceToPlayer > attackRange) // No longer in attack range
+		{
+			ChangeState(AIState.Chasing);
+		}
+	}
+
 	void Patrol()
 	{
 	}
@@ -101,5 +132,19 @@ public class EnemyAI : MonoBehaviour
 
 	void Retreat()
 	{
+	}
+
+	void ChangeState(AIState newState) // Changing states and don't make enemy move in attacking or searching states
+	{
+		if (newState == AIState.Searching || newState == AIState.Attacking)
+		{
+			agent.isStopped = true;
+		}
+		else
+		{
+			agent.isStopped = false;
+		}
+
+		currentState = newState;
 	}
 }
