@@ -23,4 +23,83 @@ public class EnemyAI : MonoBehaviour
 	private float distanceToPlayer;
 
 	public enum AIState { Patrolling, Chasing, Searching, Attacking, Retreating } // States
+
+	void Start() // Load NavMesh and set to patrolling
+	{
+		agent = GetComponent<NavMeshAgent>();
+		currentState = AIState.Patrolling;
+	}
+
+	void Update() // Updating and checking
+	{
+		distanceToPlayer = Vector3.Distance(player.position, transform.position);
+
+		UpdateStateText();
+		StateManager();
+	}
+
+	private void UpdateStateText() // For updating the UI text of state changes
+	{
+		stateText.text = currentState.ToString();
+		switch (currentState)
+		{
+			case AIState.Patrolling:
+				stateText.color = Color.green;
+				break;
+			case AIState.Chasing:
+				stateText.color = new Color32(255, 165, 0, 255);
+				break;
+			case AIState.Searching:
+				stateText.color = Color.yellow;
+				break;
+			case AIState.Attacking:
+				stateText.color = Color.red;
+				break;
+			case AIState.Retreating:
+				stateText.color = Color.blue;
+				break;
+		}
+	}
+
+	private void StateManager() // Manging and switching all states
+	{
+		switch (currentState)
+		{
+			case AIState.Patrolling:
+				Patrol();
+				break;
+			case AIState.Chasing:
+				Chase();
+				break;
+			case AIState.Searching:
+				Search();
+				break;
+			case AIState.Attacking:
+				Attack();
+				break;
+			case AIState.Retreating:
+				Retreat();
+				break;
+		}
+	}
+
+	void Patrol()
+	{
+	}
+
+	void Chase()
+	{
+	}
+
+	void Search()
+	{
+	}
+
+	void Attack() // No attacking needed for project
+	{
+	}
+
+	void Retreat()
+	{
+	}
 }
