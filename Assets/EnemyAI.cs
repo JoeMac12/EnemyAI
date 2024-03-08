@@ -124,20 +124,50 @@ public class EnemyAI : MonoBehaviour
 		}
 	}
 
-	void Chase()
+	void Chase() // Chasing the player
 	{
+		SetDestination(player.position);
+		lastKnownPosition = player.position;
 	}
 
-	void Search()
+	void Search() // Search for the last known location of player
 	{
+		if (distanceToPlayer <= sightRange)
+		{
+			lastKnownPosition = player.position;
+			ChangeState(AIState.Chasing); // if player was found again when searching
+			return;
+		}
+
+		if (!agent.pathPending && SetDestination(lastKnownPosition, 1f))
+		{
+			if (searchTimer < searchDuration) // Start search timer
+			{
+				searchTimer += Time.deltaTime;
+				agent.isStopped = true;
+			}
+			else
+			{
+				searchTimer = 0;
+				EndSearch(); // End search if player was not found
+			}
+		}
+		else
+		{
+			agent.isStopped = false;
+		}
 	}
 
 	void Attack() // No attacking needed for project
 	{
 	}
 
-	void Retreat()
+	void Retreat() // Retreat to first control point and switch to patrolling
 	{
+		if (SetDestination(patrolPoints[0].position, 1f))
+		{
+			ChangeState(AIState.Patrolling);
+		}
 	}
 
 	bool SetDestination(Vector3 destination, float threshold = 0.5f) // Checking for valid destination
@@ -148,6 +178,11 @@ public class EnemyAI : MonoBehaviour
 			return false;
 		}
 		return true;
+	}
+
+	void EndSearch() // End the search and change to retreating
+	{
+		ChangeState(AIState.Retreating);
 	}
 
 	void ChangeState(AIState newState) // Changing states and don't make enemy move in attacking or searching states
